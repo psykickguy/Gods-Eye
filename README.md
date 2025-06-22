@@ -35,3 +35,33 @@ npm install
 cd ../frontend
 npm install
 ```
+
+---
+
+###  🛠️ Creators
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/psykickguy">
+        <img src="https://github.com/psykickguy.png" width="60px;" alt="psykickguy"/>
+      </a>
+      <br /><sub><b>psykickguy</b></sub>
+      <br />
+    </td>
+    <td align="center">
+      <a href="https://github.com/Patrick-ayo">
+        <img src="https://github.com/Patrick-ayo.png" width="60px;" alt="Patrick-ayo"/>
+      </a>
+      <br /><sub><b>Patrick-ayo</b></sub>
+      <br />
+    </td>
+    <td align="center">
+      <a href="https://github.com/prem-2802">
+        <img src="https://github.com/prem-2802.png" width="60px;" alt="prem-2802"/>
+      </a>
+      <br /><sub><b>Prem Dongare</b></sub>
+      <br />
+    </td>
+  </tr>
+</table>
