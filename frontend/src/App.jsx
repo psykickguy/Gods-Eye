@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+
+import Sidebar from "./components/SideBar";
+import ChatArea from "./components/ChatArea";
+import DataPanel from "./components/DataPanel";
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <PanelGroup direction="horizontal">
+      <Panel minSize={20} defaultSize={25}>
+        <Sidebar />
+      </Panel>
+      <PanelResizeHandle />
+      <Panel minSize={30} defaultSize={50}>
+        <ChatArea />
+      </Panel>
+      <PanelResizeHandle />
+      <Panel minSize={20} defaultSize={25}>
+        <DataPanel />
+      </Panel>
+    </PanelGroup>
+  );
 }
 
-export default App
+export default App;

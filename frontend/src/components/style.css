@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.hover-grey:hover {
+  background-color: #e5e7eb !important;
+}
+
+.dark .hover-grey:hover {
+  background-color: #4b5563 !important;
+}
+
+.sidebar {
+  padding: 1rem 0;
+  height: 100vh;
+}
