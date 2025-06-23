@@ -12,7 +12,7 @@ function Logo() {
         id="dropdownRightEndButton"
         data-dropdown-toggle="dropdownRightEnd"
         data-dropdown-placement="right-end"
-        className="bg-transparent text-gray-900 dark:text-white font-bold md:text-5xl border-none focus:outline-none rounded-2xl px-5 py-2.5 me-2 mb-2 transition-colors duration-300 cursor-pointer hover-grey"
+        className="bg-transparent text-gray-900 dark:text-white font-bold md:text-5xl border-none focus:outline-none rounded-2xl px-5 py-2.5 me-2 mb-2 ml-2 transition-colors duration-300 cursor-pointer hover-grey"
         type="button"
       >
         <h1 className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">

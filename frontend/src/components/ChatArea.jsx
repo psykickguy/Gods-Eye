@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import zoeIco from "../avatars/zoe.png";
+
+import ChatHeader from "./ChatHeader";
 
 const commands = ["/help", "/clear", "/ban", "/kick", "/invite"];
 const users = ["@Shubham", "@Anjali", "@Devid", "@Patrick"];
@@ -8,7 +11,12 @@ function ChatArea() {
   const [message, setMessage] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [messages, setMessages] = useState([
+    { from: "joe", text: "Hello my friend" },
+    { from: "joe", text: "Welcome to the server" },
+  ]);
   const inputRef = useRef(null);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const lastWord = message.split(/\s+/).pop() || "";
@@ -22,6 +30,10 @@ function ChatArea() {
       setSuggestions([]);
     }
   }, [message]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const acceptSuggestion = (value) => {
     const parts = message.split(/\s+/);
@@ -52,15 +64,33 @@ function ChatArea() {
 
   const handleSend = () => {
     if (message.trim()) {
-      console.log("Send message:", message);
+      setMessages((prev) => [...prev, { from: "me", text: message }]);
       setMessage("");
     }
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
-        <div className="text-gray-500 text-sm">No messages yet...</div>
+      <ChatHeader />
+
+      <div className="flex-1 overflow-y-auto p-4 bg-white space-y-3">
+        {messages.map((msg, idx) =>
+          msg.from === "joe" ? (
+            <div key={idx} className="flex items-start gap-2">
+              <img src={zoeIco} alt="Joe" className="w-10 h-10 rounded-full" />
+              <div className="bg-blue-100 text-black rounded-xl px-4 py-2 max-w-xs">
+                {msg.text}
+              </div>
+            </div>
+          ) : (
+            <div key={idx} className="flex justify-end">
+              <div className="bg-blue-400 text-white rounded-xl px-4 py-2 max-w-xs">
+                {msg.text}
+              </div>
+            </div>
+          )
+        )}
+        <div ref={chatEndRef} />
       </div>
 
       <div className="relative p-4 border-t bg-white">
