@@ -63,5 +63,12 @@ npm install
       <br /><sub><b>Prem Dongare</b></sub>
       <br />
     </td>
+    <td align="center">
+      <a href="https://github.com/Vasundhara7904">
+        <img src="https://github.com/Vasundhara7904.png" width="60px;" alt="Vasundhara7904"/>
+      </a>
+      <br /><sub><b>Vasundhara Yande</b></sub>
+      <br />
+    </td>
   </tr>
 </table>
