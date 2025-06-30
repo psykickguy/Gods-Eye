@@ -34,7 +34,7 @@ export default function Sidebar() {
   );
 
   return (
-    <div className="sidebar h-full bg-white border-r border-gray-200 flex flex-col">
+    <div className="sidebar h-full bg-white border-r border-gray-200 flex flex-col transition-colors">
       {/* Top: Logo */}
       <div className="p-4 border-b border-gray-200">
         <Logo />
@@ -50,7 +50,7 @@ export default function Sidebar() {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
           />
         </div>
 

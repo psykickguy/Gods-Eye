@@ -26,10 +26,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('info')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">INFO</span>
-            <span className={`transform transition-transform ${openPanels.info ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.info ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>
@@ -50,10 +50,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('media')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">MEDIA</span>
-            <span className={`transform transition-transform ${openPanels.media ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.media ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>
@@ -68,10 +68,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('dataAccess')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">DATA ACCESS</span>
-            <span className={`transform transition-transform ${openPanels.dataAccess ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.dataAccess ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>
@@ -88,10 +88,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('screenshots')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">SCREENSHOTS</span>
-            <span className={`transform transition-transform ${openPanels.screenshots ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.screenshots ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>
@@ -111,10 +111,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('logs')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">LOGS / VISUALIZATION</span>
-            <span className={`transform transition-transform ${openPanels.logs ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.logs ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>
@@ -130,10 +130,10 @@ function DataPanel() {
         <div className="mb-4">
           <button
             onClick={() => togglePanel('alerts')}
-            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-blue-50 transition-colors"
           >
             <span className="font-medium text-gray-700">ALERTS</span>
-            <span className={`transform transition-transform ${openPanels.alerts ? 'rotate-180' : ''}`}>
+            <span className={`transform transition-transform ${openPanels.alerts ? 'rotate-180' : ''} text-blue-500`}>
               ▼
             </span>
           </button>

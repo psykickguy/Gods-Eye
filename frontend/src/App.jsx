@@ -1,16 +1,23 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import React, { useState } from 'react';
 
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import Sidebar from "./components/SideBar";
+import Sidebar from "./components/Sidebar";
 import ChatArea from "./components/ChatArea";
 import DataPanel from "./components/DataPanel";
+import Login from './components/Login';
+import OtpVerification from './components/OtpVerification';
 
-function App() {
-  // const [count, setCount] = useState(0)
+export default function App() {
+  const [step, setStep] = useState('login');
+
+  if (step === 'login') {
+    return <Login onSuccess={() => setStep('otp')} />;
+  }
+  if (step === 'otp') {
+    return <OtpVerification email="xyz@example.com" onSuccess={() => setStep('main')} />;
+  }
 
   return (
     <PanelGroup direction="horizontal">
@@ -28,5 +35,3 @@ function App() {
     </PanelGroup>
   );
 }
-
-export default App;
