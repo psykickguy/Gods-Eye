@@ -26,3 +26,17 @@
   flex: 1;
   overflow: auto;
 }
+
+.status {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  /* right: 100%; */
+  /* width: ; */
+}
+
+.system {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
