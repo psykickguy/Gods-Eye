@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './login-otp.css';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function OtpVerification({ email = 'xyz@example.com' }) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -43,7 +45,13 @@ export default function OtpVerification({ email = 'xyz@example.com' }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (otp.every(val => val.length === 1)) {
-      alert(`OTP ${otp.join('')} submitted for verification!`);
+      signInWithEmailAndPassword(auth, email, otp.join(''))
+        .then((userCredential) => {
+          alert('OTP verified successfully!');
+        })
+        .catch((error) => {
+          alert('Firebase login failed: ' + error.message);
+        });
     }
   };
 

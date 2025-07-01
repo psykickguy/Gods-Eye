@@ -12,6 +12,7 @@
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^2.1.1",
     "@heroicons/react": "^2.2.0",
+    "firebase": "^11.10.0",
     "flowbite": "^3.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

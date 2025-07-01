@@ -1,105 +1,82 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { auth, db } from '../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { getFunctions, httpsCallable } from "firebase/functions";
 
-export default function OtpVerification({ email = 'xyz@example.com', onSuccess }) {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [disabled, setDisabled] = useState(true);
-  const inputsRef = useRef([]);
+const functions = getFunctions();
 
-  useEffect(() => {
-    setDisabled(otp.some(val => val.length !== 1));
-  }, [otp]);
+async function sendOtpToEmail(email, otp) {
+  const sendOtpEmail = httpsCallable(functions, 'sendOtpEmail');
+  const result = await sendOtpEmail({ email, otp });
+  return result.data;
+}
 
-  useEffect(() => {
-    inputsRef.current[0]?.focus();
-  }, []);
+export default function PhoneLogin({ onSuccess }) {
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [step, setStep] = useState('phone'); // 'phone' or 'otp'
+  const recaptchaRef = useRef(null);
 
-  const handleChange = (e, idx) => {
-    const val = e.target.value.replace(/[^0-9]/g, '');
-    if (!val) return;
-    const newOtp = [...otp];
-    newOtp[idx] = val;
-    setOtp(newOtp);
-    if (idx < 5) {
-      inputsRef.current[idx + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (e, idx) => {
-    if (e.key === 'Backspace' && otp[idx] === '' && idx > 0) {
-      inputsRef.current[idx - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e) => {
-    const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-    if (paste.length === 6) {
-      setOtp(paste.split(''));
-      inputsRef.current[5]?.focus();
-    }
+  const sendOtp = async (e) => {
     e.preventDefault();
+    // Set up reCAPTCHA
+    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {
+        // reCAPTCHA solved
+      }
+    }, auth);
+
+    try {
+      const appVerifier = window.recaptchaVerifier;
+      const result = await signInWithPhoneNumber(auth, phone, appVerifier);
+      setConfirmationResult(result);
+      setStep('otp');
+      alert('OTP sent!');
+    } catch (error) {
+      alert('Error sending OTP: ' + error.message);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const verifyOtp = async (e) => {
     e.preventDefault();
-    if (otp.join('') === '000000') {
-      alert(`OTP 000000 submitted for verification!`);
+    try {
+      await confirmationResult.confirm(otp);
+      alert('Phone verified!');
       if (onSuccess) onSuccess();
-    } else {
-      alert('Incorrect OTP. Please try again.');
-      setOtp(['', '', '', '', '', '']);
-      inputsRef.current[0]?.focus();
+    } catch (error) {
+      alert('Invalid OTP');
     }
-  };
-
-  const handleResend = (e) => {
-    e.preventDefault();
-    alert('OTP resent to your email!');
-    setOtp(['', '', '', '', '', '']);
-    inputsRef.current[0]?.focus();
   };
 
   return (
-    <div className="otp-bg">
-      <div className="dot"></div>
-      <div className="shape1"></div>
-      <div className="shape2"></div>
-      <div className="shape3"></div>
-      <div className="bottom-shapes"></div>
-      <div className="otp-container">
-        <div className="otp-message">
-          The OTP is <b>000000</b> and is sent on your <span className="email-highlight">{email}</span> mail
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="otp-section">
-            <div className="otp-inputs">
-              {otp.map((val, idx) => (
-                <input
-                  key={idx}
-                  type="text"
-                  className="otp-input"
-                  maxLength={1}
-                  pattern="[0-9]"
-                  value={val}
-                  onChange={e => handleChange(e, idx)}
-                  onKeyDown={e => handleKeyDown(e, idx)}
-                  onPaste={handlePaste}
-                  ref={el => (inputsRef.current[idx] = el)}
-                  required
-                />
-              ))}
-            </div>
-            <button type="submit" className="verify-button" disabled={disabled}>
-              Verify OTP
-            </button>
-          </div>
+    <div>
+      {step === 'phone' && (
+        <form onSubmit={sendOtp}>
+          <input
+            type="tel"
+            placeholder="Enter phone number (+1234567890)"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            required
+          />
+          <div id="recaptcha-container" ref={recaptchaRef}></div>
+          <button type="submit">Send OTP</button>
         </form>
-        <div className="resend-section">
-          Didn't receive the code?{' '}
-          <a href="#" className="resend-link" onClick={handleResend}>
-            Resend OTP
-          </a>
-        </div>
-      </div>
+      )}
+      {step === 'otp' && (
+        <form onSubmit={verifyOtp}>
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={e => setOtp(e.target.value)}
+            required
+          />
+          <button type="submit">Verify OTP</button>
+        </form>
+      )}
     </div>
   );
 } 
