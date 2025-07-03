@@ -70,7 +70,7 @@ function ChatArea() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white">
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 bg-white space-y-3">

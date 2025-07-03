@@ -1,11 +1,12 @@
 import React from "react";
 import { Sidebar, ExpansionPanel } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import SystemStatus from "./SystemStatus";
 
 function DataPanel() {
   return (
     <div className="DataPanel">
-      <Sidebar position="right">
+      <Sidebar position="right" className="bg-white border-l border-gray-300">
         <ExpansionPanel open title="INFO">
           <p>⚠️ AI flagged a risky file</p>
           <p>
@@ -45,6 +46,10 @@ function DataPanel() {
           <p>📅 Upcoming meeting: 25 June @ 11:00 AM</p>
           <p>🚨 AI Alert: Anomalous token detected at 5:12 PM</p>
         </ExpansionPanel>
+        {/* SystemStatus pinned at bottom */}
+        {/* <div className="absolute bottom-0 left-0 right-0 z-10">
+          <SystemStatus />
+        </div> */}
       </Sidebar>
     </div>
   );

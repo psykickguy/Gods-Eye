@@ -11,12 +11,13 @@
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^2.1.1",
-    "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@heroicons/react": "^2.2.0",
+    "firebase": "^11.10.0",
     "flowbite": "^3.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-resizable-panels": "^3.0.3"
+    "react-resizable-panels": "^3.0.3",
+    "react-router-dom": "^6.23.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -31,7 +32,7 @@
     "globals": "^15.15.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.10",
-    "vite": "^6.2.0"
+    "vite": "^6.3.5"
   },
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "eslint.config.js",
