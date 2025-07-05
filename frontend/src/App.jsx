@@ -11,12 +11,16 @@ import OtpVerification from './components/OtpVerification';
 
 export default function App() {
   const [step, setStep] = useState('login');
+  const [userEmail, setUserEmail] = useState('');
 
   if (step === 'login') {
-    return <Login onSuccess={() => setStep('otp')} />;
+    return <Login onSuccess={(email) => {
+      setUserEmail(email);
+      setStep('otp');
+    }} />;
   }
   if (step === 'otp') {
-    return <OtpVerification email="xyz@example.com" onSuccess={() => setStep('main')} />;
+    return <OtpVerification email={userEmail} onSuccess={() => setStep('main')} />;
   }
 
   return (

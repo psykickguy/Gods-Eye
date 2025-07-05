@@ -331,6 +331,44 @@
   text-decoration: underline;
 }
 
+.otp-info {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.resend-button {
+  background: transparent;
+  color: #6366f1;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 15px;
+  text-decoration: underline;
+}
+
+.resend-button:hover {
+  color: #4f46e5;
+}
+
+.otp-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.login-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 @media (max-width: 480px) {
   .login-container, .otp-container {
     padding: 0 30px;
@@ -346,4 +384,4 @@
     height: 45px;
     font-size: 18px;
   }
-} 
+}

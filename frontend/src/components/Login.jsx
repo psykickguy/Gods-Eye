@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './login-otp.css';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const generateCaptcha = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -11,10 +13,11 @@ const generateCaptcha = () => {
 };
 
 export default function Login({ onSuccess }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [captcha, setCaptcha] = useState(generateCaptcha());
   const [captchaInput, setCaptchaInput] = useState('');
+  const [error, setError] = useState('');
   const captchaInputRef = useRef(null);
 
   const refreshCaptcha = () => {
@@ -23,12 +26,20 @@ export default function Login({ onSuccess }) {
     captchaInputRef.current && captchaInputRef.current.focus();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (captcha === captchaInput.toUpperCase()) {
-      onSuccess();
-    } else {
-      alert('CAPTCHA verification failed. Please try again.');
+    setError('');
+    if (captcha !== captchaInput.toUpperCase()) {
+      setError('CAPTCHA verification failed. Please try again.');
+      refreshCaptcha();
+      return;
+    }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      if (onSuccess) onSuccess(email);
+    } catch (err) {
+      console.log('Firebase login error:', err);
+      setError('Invalid email or password.');
       refreshCaptcha();
     }
   };
@@ -44,11 +55,11 @@ export default function Login({ onSuccess }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
-              type="text"
+              type="email"
               className="form-input"
-              placeholder="Username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </div>
@@ -78,6 +89,7 @@ export default function Login({ onSuccess }) {
             />
           </div>
           <button type="submit" className="login-button">login</button>
+          {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
         </form>
       </div>
     </div>
