@@ -1,53 +1,81 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const path = require('path');
+// Load environment variables
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const connectDB = require("./config/db");
+connectDB();
+
+const testInsertRoute = require("./routes/testInsert");
+const imageRoutes = require("./routes/imageRoutes");
+// const uploadRoutes = require("./routes/upload");
+
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'Gods Eye Backend is running',
-    timestamp: new Date().toISOString()
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Gods Eye Backend is running",
+    timestamp: new Date().toISOString(),
   });
 });
 
-app.get('/api/status', (req, res) => {
+app.use("/api/image", imageRoutes);
+// app.use("/api", uploadRoutes);
+
+app.get("/api/dbtest", async (req, res) => {
+  try {
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    res.json({ connected: true, collections });
+  } catch (err) {
+    res.status(500).json({ connected: false, error: err.message });
+  }
+});
+
+app.get("/api/status", (req, res) => {
   res.json({
-    app: 'Gods Eye',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
+    app: "Gods Eye",
+    version: "1.0.0",
+    environment: process.env.NODE_ENV || "development",
     uptime: process.uptime(),
-    memory: process.memoryUsage()
+    memory: process.memoryUsage(),
   });
 });
 
 // API routes
-app.use('/api/transactions', require('./routes/transactionRoutes'));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/transactions", require("./routes/transactionRoutes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  res.status(500).json({
+    error: "Something went wrong!",
+    message:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal server error",
   });
 });
 
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+app.use("*", (req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
 // Start server
@@ -58,14 +86,16 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
   process.exit(0);
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down gracefully");
   process.exit(0);
 });
+
+app.use("/api/test", testInsertRoute);
 
 module.exports = app;

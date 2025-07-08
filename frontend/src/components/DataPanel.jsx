@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar, ExpansionPanel } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import SystemStatus from "./SystemStatus";
 
 function DataPanel() {
+  const [mediaImages, setMediaImages] = useState([]);
+  const [screenshotImages, setScreenshotImages] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/image/grouped")
+      .then((res) => res.json())
+      .then((data) => {
+        setMediaImages(data.media || []);
+        setScreenshotImages(data.screenshots || []);
+      })
+      .catch((err) => console.error("Failed to fetch images:", err));
+  }, []);
+
   return (
     <div className="DataPanel">
       <Sidebar position="right" className="bg-white border-l border-gray-300">
@@ -19,7 +32,20 @@ function DataPanel() {
         </ExpansionPanel>
 
         <ExpansionPanel title="MEDIA">
-          <p>📷 No media shared yet.</p>
+          {mediaImages.length > 0 ? (
+            <div className="grid grid-cols-1 gap-2">
+              {mediaImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.imageUrl}
+                  alt={`webcam-${idx}`}
+                  className="rounded shadow"
+                />
+              ))}
+            </div>
+          ) : (
+            <p>📷 No media shared yet.</p>
+          )}
         </ExpansionPanel>
 
         <ExpansionPanel title="DATA ACCESS">
@@ -29,12 +55,20 @@ function DataPanel() {
         </ExpansionPanel>
 
         <ExpansionPanel title="SCREENSHOTS">
-          <p>🖼️ 3 screenshots saved</p>
-          <ul className="list-disc list-inside text-sm text-gray-700">
-            <li>dashboard_ss1.png</li>
-            <li>error_trace.png</li>
-            <li>user_activity.png</li>
-          </ul>
+          {screenshotImages.length > 0 ? (
+            <div className="grid grid-cols-1 gap-2">
+              {screenshotImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.imageUrl}
+                  alt={`screenshot-${idx}`}
+                  className="rounded shadow"
+                />
+              ))}
+            </div>
+          ) : (
+            <p>🖼️ No screenshots saved.</p>
+          )}
         </ExpansionPanel>
 
         <ExpansionPanel title="LOGS / VISUALIZATION">
@@ -46,10 +80,6 @@ function DataPanel() {
           <p>📅 Upcoming meeting: 25 June @ 11:00 AM</p>
           <p>🚨 AI Alert: Anomalous token detected at 5:12 PM</p>
         </ExpansionPanel>
-        {/* SystemStatus pinned at bottom */}
-        {/* <div className="absolute bottom-0 left-0 right-0 z-10">
-          <SystemStatus />
-        </div> */}
       </Sidebar>
     </div>
   );
