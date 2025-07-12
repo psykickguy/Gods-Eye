@@ -1,0 +1,28 @@
+{
+  "allowedDevices": [
+    "keyboard",
+    "mouse",
+    "pointing",
+    "trackpad",
+    "internal"
+  ],
+  "forbiddenDeviceClasses": [
+    "USB",
+    "WPD",
+    "Volume",
+    "Image",
+    "Media",
+    "Ports",
+    "Bluetooth",
+    "IEEE1394",
+    "SCSI",
+    "SmartCardReader"
+  ],
+  "securityPolicies": {
+    "blockUSBStorage": true,
+    "blockExternalDisplays": false,
+    "blockUnknownHID": true,
+    "alertOnViolation": true,
+    "autoShutdownOnViolation": false
+  }
+}
