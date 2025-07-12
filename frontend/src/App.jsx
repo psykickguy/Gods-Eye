@@ -12,6 +12,7 @@ import OtpVerification from './components/OtpVerification';
 export default function App() {
   const [step, setStep] = useState('login');
   const [userEmail, setUserEmail] = useState('');
+  const [ollamaPanelOpen, setOllamaPanelOpen] = useState(false);
 
   if (step === 'login') {
     return <Login onSuccess={(email) => {
@@ -26,11 +27,11 @@ export default function App() {
   return (
     <PanelGroup direction="horizontal">
       <Panel minSize={20} defaultSize={25}>
-        <Sidebar />
+        <Sidebar onOllamaOpen={() => setOllamaPanelOpen(true)} />
       </Panel>
       <PanelResizeHandle />
       <Panel minSize={30} defaultSize={50}>
-        <ChatArea />
+        <ChatArea ollamaPanelOpen={ollamaPanelOpen} setOllamaPanelOpen={setOllamaPanelOpen} />
       </Panel>
       <PanelResizeHandle />
       <Panel minSize={20} defaultSize={25}>

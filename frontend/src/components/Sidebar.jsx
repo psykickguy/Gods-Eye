@@ -1,27 +1,10 @@
-// import Logo from "./Logo.jsx";
-// import AddButton from "./AddButton.jsx";
-// import "./style.css";
-
-// function Sidebar() {
-//   return (
-//     <div className="sidebar">
-//       <Logo />
-//       <h1>Sidebar</h1>
-//       <AddButton />
-//     </div>
-//   );
-// }
-
-// export default Sidebar;
-
 import React, { useState } from "react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import Logo from "./Logo.jsx";
-import AddButton from "./AddButton.jsx";
 import zoeIco from "../avatars/zoe.png";
 import "./style.css";
 
-export default function Sidebar() {
+export default function Sidebar({ onOllamaOpen }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState("1");
 
@@ -87,9 +70,21 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Bottom: AddButton */}
+      {/* Bottom: Ollama Access */}
       <div className="p-4 border-t border-gray-200">
-        <AddButton />
+        <button
+          className="w-full flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border border-gray-200 hover:border-blue-200"
+          onClick={() => onOllamaOpen && onOllamaOpen()}
+          title="Ollama Chatbot"
+        >
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-gray-900 truncate">Ollama AI</h3>
+            <p className="text-sm text-gray-500 truncate">Chat with AI assistant</p>
+          </div>
+        </button>
       </div>
     </div>
   );

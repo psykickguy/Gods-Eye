@@ -11,7 +11,7 @@ const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const xlsx = require('xlsx');
 const Tesseract = require('tesseract.js');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
@@ -101,16 +101,14 @@ app.post('/api/ollama/chat', async (req, res) => {
     const lastUserMsg = messages.filter(m => m.role === 'user').pop();
     const prompt = context ? `${context}\nUser: ${lastUserMsg.content}` : lastUserMsg.content;
     // Call Ollama (Mistral)
-    const ollamaRes = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'mistral',
-        prompt,
-        stream: false
-      })
+    const ollamaRes = await axios.post('http://localhost:11434/api/generate', {
+      model: 'mistral',
+      prompt,
+      stream: false
+    }, {
+      headers: { 'Content-Type': 'application/json' }
     });
-    const data = await ollamaRes.json();
+    const data = ollamaRes.data;
     res.json({ answer: data.response });
   } catch (e) {
     res.status(500).json({ error: 'Failed to contact Ollama' });
