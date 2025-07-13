@@ -36,6 +36,11 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
   const [ollamaFileName, setOllamaFileName] = useState(null);
   const [ollamaImagePreview, setOllamaImagePreview] = useState(null);
   const [ollamaPreviewFile, setOllamaPreviewFile] = useState(null);
+  
+  // Hazard detection state
+  const [isConfidential, setIsConfidential] = useState(false);
+  const [hazardDetectionLoading, setHazardDetectionLoading] = useState(false);
+  const [hazardDetectionTimeout, setHazardDetectionTimeout] = useState(null);
 
   // Filtered messages for search
   const filteredMessages = searchTerm
@@ -43,6 +48,67 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
         msg.text.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : messages;
+
+  // Real-time hazard detection function
+  const detectHazard = async (text) => {
+    if (!text.trim()) {
+      setIsConfidential(false);
+      return;
+    }
+
+    try {
+      setHazardDetectionLoading(true);
+      const response = await fetch("http://localhost:8000/detect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: text }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Treat anything except 'SAFE' as confidential (strict policy)
+        setIsConfidential(data.result !== "SAFE");
+      } else {
+        console.error("Hazard detection failed:", response.status);
+        setIsConfidential(true); // Strict: treat as confidential on error
+      }
+    } catch (error) {
+      console.error("Error detecting hazard:", error);
+      setIsConfidential(true); // Strict: treat as confidential on error
+    } finally {
+      setHazardDetectionLoading(false);
+    }
+  };
+
+  // Debounced hazard detection while typing
+  useEffect(() => {
+    if (hazardDetectionTimeout) {
+      clearTimeout(hazardDetectionTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      detectHazard(message);
+    }, 1000); // 1 second delay
+
+    setHazardDetectionTimeout(timeout);
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [message]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hazardDetectionTimeout) {
+        clearTimeout(hazardDetectionTimeout);
+      }
+    };
+  }, [hazardDetectionTimeout]);
 
   // Drag and drop handlers
   const handleDragOver = (e) => {
@@ -61,7 +127,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
       const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
       if (ollamaPanelOpen) {
-        // For Ollama chat - show preview only (single image)
+        // For Cohere chat - show preview only (single image)
         if (imageFiles.length > 0) {
           const file = imageFiles[0];
           const url = URL.createObjectURL(file);
@@ -141,6 +207,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
           })),
           id: Date.now() + Math.random(),
           replyTo: replyingTo,
+          isConfidential: isConfidential,
         };
         setMessages((prev) => [...prev, newMessage]);
         // Clear preview after sending
@@ -153,15 +220,17 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
           text: message,
           id: Date.now() + Math.random(),
           replyTo: replyingTo,
+          isConfidential: isConfidential,
         };
         setMessages((prev) => [...prev, newMessage]);
       }
       setMessage("");
       setReplyingTo(null);
+      setIsConfidential(false);
     }
   };
 
-  // Handle Ollama chat send
+  // Handle Cohere chat send
   const handleOllamaSend = async () => {
     if (!ollamaInput.trim() && !ollamaPreviewFile) return;
 
@@ -179,7 +248,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
     setOllamaLoading(true);
 
     try {
-      const res = await fetch("/api/ollama/chat", {
+      const res = await fetch("http://localhost:3001/api/ollama/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -187,15 +256,21 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
           fileId: ollamaFileId,
         }),
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
       setOllamaMessages((prev) => [
         ...prev,
         { role: "assistant", content: data.answer },
       ]);
     } catch (e) {
+      console.error("Error calling Cohere API:", e);
       setOllamaMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "[Error contacting Ollama]" },
+        { role: "assistant", content: `[Error contacting Cohere: ${e.message}]` },
       ]);
     }
     setOllamaLoading(false);
@@ -225,7 +300,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
     });
   };
 
-  // Handle file drop for Ollama
+  // Handle file drop for Cohere
   const handleOllamaFileDrop = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -233,7 +308,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
     setOllamaFileId(null);
 
     try {
-      const res = await fetch("/api/ollama/upload", {
+      const res = await fetch("http://localhost:3001/api/ollama/upload", {
         method: "POST",
         body: formData,
       });
@@ -252,12 +327,12 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
   return (
     <div className="flex flex-col h-full bg-white">
       <ChatHeader />
-      {/* Ollama Left Bottom Panel */}
+      {/* Cohere Left Bottom Panel */}
       {ollamaPanelOpen && (
         <div className="fixed bottom-0 left-0 h-1/2 w-1/4 min-w-80 bg-white shadow-2xl z-50 flex flex-col border-r border-t border-gray-200 rounded-tr-lg animate-slide-in">
           <div className="flex items-center justify-between px-4 py-3 border-b bg-blue-50">
             <div className="font-semibold text-lg text-gray-800">
-              Ollama Chat (Mistral)
+              Cohere Chat (Command)
             </div>
             <button
               onClick={() => setOllamaPanelOpen(false)}
@@ -266,7 +341,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
               <XMarkIcon className="h-6 w-6 text-gray-700" />
             </button>
           </div>
-          {/* Ollama Messages - Scrollable Area */}
+          {/* Cohere Messages - Scrollable Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {ollamaFileName && (
               <div className="mb-2 text-xs text-blue-700">
@@ -276,7 +351,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
             )}
             {ollamaMessages.length === 0 && (
               <div className="text-gray-400 text-center mt-10">
-                Start chatting with Ollama...
+                Start chatting with Cohere...
               </div>
             )}
             {ollamaMessages.map((msg, idx) => (
@@ -298,7 +373,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
               </div>
             ))}
           </div>
-          {/* Ollama Fixed Input Area at Bottom */}
+          {/* Cohere Fixed Input Area at Bottom */}
           <div className="border-t bg-white p-4">
             {/* Image Preview */}
             {ollamaImagePreview && (
@@ -329,7 +404,7 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
               }}
             >
               <textarea
-                placeholder="Ask Ollama..."
+                placeholder="Ask Cohere..."
                 value={ollamaInput}
                 onChange={(e) => setOllamaInput(e.target.value)}
                 disabled={ollamaLoading}
@@ -470,7 +545,16 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
                       {msg.replyTo.text}
                     </div>
                   )}
-                  <div className="bg-blue-100 text-black rounded-xl px-4 py-2 max-w-xs">
+                  {msg.isConfidential && (
+                    <div className="mb-1 text-xs text-red-600 font-semibold flex items-center gap-1">
+                      ⚠️ This message is confidential
+                    </div>
+                  )}
+                  <div className={`rounded-xl px-4 py-2 max-w-xs ${
+                    msg.isConfidential 
+                      ? "bg-red-100 text-red-900 border-2 border-red-300" 
+                      : "bg-blue-100 text-black"
+                  }`}>
                     {msg.text}
                   </div>
                   <button
@@ -490,6 +574,11 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
                       {msg.replyTo.text}
                     </div>
                   )}
+                  {msg.isConfidential && (
+                    <div className="mb-1 text-xs text-red-600 font-semibold flex items-center gap-1 justify-end">
+                      ⚠️ This message is confidential
+                    </div>
+                  )}
                   {msg.images ? (
                     <div className="max-w-xs">
                       <div className="grid grid-cols-2 gap-1 mb-2">
@@ -503,13 +592,21 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
                         ))}
                       </div>
                       {msg.text !== "Images" && (
-                        <div className="bg-blue-400 text-white rounded-xl px-4 py-2">
+                        <div className={`rounded-xl px-4 py-2 ${
+                          msg.isConfidential 
+                            ? "bg-red-500 text-white border-2 border-red-600" 
+                            : "bg-blue-400 text-white"
+                        }`}>
                           {msg.text}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="bg-blue-400 text-white rounded-xl px-4 py-2 max-w-xs">
+                    <div className={`rounded-xl px-4 py-2 max-w-xs ${
+                      msg.isConfidential 
+                        ? "bg-red-500 text-white border-2 border-red-600" 
+                        : "bg-blue-400 text-white"
+                    }`}>
                       {msg.text}
                     </div>
                   )}
@@ -586,6 +683,26 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
           </div>
         )}
 
+        {/* Real-time Hazard Detection Indicator */}
+        {message.trim() && (
+          <div className="mb-3 flex items-center gap-2">
+            {hazardDetectionLoading ? (
+              <div className="text-sm text-gray-500 flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                Analyzing message...
+              </div>
+            ) : isConfidential ? (
+              <div className="text-sm text-red-600 font-semibold flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                ⚠️ This message is confidential
+              </div>
+            ) : (
+              <div className="text-sm text-green-600 flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                ✓ Message is safe
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}
@@ -593,7 +710,11 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none text-gray-900 resize-none max-h-32 min-h-[2.5rem] overflow-y-auto"
+            className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none text-gray-900 resize-none max-h-32 min-h-[2.5rem] overflow-y-auto ${
+              isConfidential 
+                ? "border-red-500 focus:border-red-600 bg-red-50" 
+                : "border-gray-300 focus:border-blue-500"
+            }`}
             rows={1}
             style={{
               height: "auto",
@@ -608,7 +729,11 @@ function ChatArea({ ollamaPanelOpen, setOllamaPanelOpen }) {
           />
           <button
             onClick={handleSend}
-            className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition flex-shrink-0"
+            className={`p-2 text-white rounded-lg transition flex-shrink-0 ${
+              isConfidential 
+                ? "bg-red-600 hover:bg-red-700" 
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             <PaperAirplaneIcon className="h-5 w-5 rotate-315" />
           </button>
